@@ -1,1083 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>dear noorarissya 🤍</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
-
-<!-- GSAP Core + Plugins -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MorphSVGPlugin.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --sky1:#060e1f;--sky2:#0a1628;--sky3:#0d2040;
-  --gold:#c8a96e;--silver:#b0c8e0;--glow:rgba(180,210,255,0.15);
-  --accent:#8ab4f8;
-}
-html{scroll-snap-type:y mandatory;}
-body{
-  background:var(--sky1);
-  font-family:'Lato',sans-serif;
-  overflow-x:hidden;
-  cursor:none;
-}
-
-/* CUSTOM CURSOR */
-#cursor{
-  position:fixed;width:14px;height:14px;
-  background:rgba(200,230,255,0.9);
-  border-radius:50%;pointer-events:none;z-index:9999;
-  transform:translate(-50%,-50%);
-  mix-blend-mode:screen;
-  will-change:transform;
-}
-#cursor-trail{
-  position:fixed;width:38px;height:38px;
-  border:1.5px solid rgba(180,210,255,0.35);
-  border-radius:50%;pointer-events:none;z-index:9998;
-  transform:translate(-50%,-50%);
-  will-change:transform;
-}
-
-/* CANVAS LAYERS */
-#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
-#particle-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;}
-.ripple-layer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;}
-
-/* SECTIONS */
-section{
-  min-height:100vh;
-  scroll-snap-align:start;
-  position:relative;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  z-index:10;
-  padding:60px 20px;
-}
-
-/* PROGRESS NAV */
-#progress-nav{
-  position:fixed;right:24px;top:50%;transform:translateY(-50%);
-  z-index:100;display:flex;flex-direction:column;gap:12px;
-}
-.nav-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:rgba(180,210,240,0.25);
-  border:1px solid rgba(180,210,240,0.4);
-  cursor:pointer;
-}
-.nav-dot.active{background:rgba(200,230,255,0.9);}
-
-/* HERO SECTION */
-#hero{perspective:800px;}
-.hero-inner{text-align:center;transform-style:preserve-3d;}
-.hero-eyebrow{
-  font-size:0.6rem;letter-spacing:0.5em;text-transform:uppercase;
-  color:rgba(200,220,240,0.5);margin-bottom:20px;
-  opacity:0;
-}
-.hero-title{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(2.8rem,10vw,6rem);
-  font-weight:400;color:#e8f2ff;
-  line-height:1.1;
-  text-shadow:0 0 80px rgba(150,200,255,0.3),0 0 120px rgba(100,160,255,0.1);
-  opacity:0;
-  position:relative;
-  overflow:visible;
-}
-.hero-title-word{display:inline-block;}
-.hero-title-char{
-  display:inline-block;
-  background:linear-gradient(135deg,#c8d8f0,#e8f2ff,#a0c0e8,#d0e4f8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  background-size:200% 200%;
-  animation:shimmerText 4s linear infinite;
-}
-@keyframes shimmerText{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
-.hero-sub{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(1rem,3vw,1.4rem);
-  font-style:italic;font-weight:300;
-  color:rgba(200,225,250,0.65);
-  margin-top:16px;letter-spacing:0.06em;
-  opacity:0;
-}
-.scroll-hint{
-  margin-top:48px;
-  color:rgba(180,210,240,0.4);
-  font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;
-  opacity:0;
-  display:flex;flex-direction:column;align-items:center;gap:8px;
-}
-.scroll-arrow{
-  width:1px;height:40px;
-  background:linear-gradient(to bottom,rgba(180,210,240,0.4),transparent);
-}
-
-/* MAGNETIC BUTTON */
-.mag-btn{
-  display:inline-block;
-  padding:12px 36px;
-  border:1px solid rgba(200,225,250,0.3);
-  border-radius:50px;
-  color:rgba(220,238,255,0.8);
-  font-family:'Cormorant Garamond',serif;
-  font-size:1rem;font-style:italic;
-  letter-spacing:0.1em;
-  cursor:none;
-  margin-top:32px;
-  position:relative;
-  overflow:hidden;
-  opacity:0;
-}
-.mag-btn::before{
-  content:'';position:absolute;inset:-2px;
-  border-radius:50px;
-  background:linear-gradient(135deg,rgba(160,200,240,0.15),rgba(100,160,220,0.05));
-  opacity:0;transition:opacity 0.4s;
-}
-.mag-btn:hover::before{opacity:1;}
-
-/* PHOTO SECTION */
-#photo-section{perspective:1000px;}
-.photo-stage{
-  display:flex;flex-direction:column;align-items:center;gap:32px;
-  opacity:0;
-}
-.photo-3d-wrap{
-  position:relative;
-  transform-style:preserve-3d;
-}
-.photo-card{
-  width:clamp(200px,40vw,280px);
-  background:linear-gradient(145deg,rgba(200,215,235,0.15),rgba(140,180,220,0.08));
-  border-radius:24px;
-  padding:12px;
-  border:1px solid rgba(210,230,250,0.25);
-  box-shadow:
-    0 0 60px rgba(140,190,240,0.12),
-    0 0 120px rgba(100,160,220,0.06),
-    inset 0 1px 0 rgba(255,255,255,0.12);
-  position:relative;overflow:hidden;
-}
-.photo-card::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(220,235,255,0.08) 0%,transparent 60%);
-  pointer-events:none;border-radius:24px;
-}
-.photo-card img{
-  width:100%;aspect-ratio:3/4;object-fit:cover;
-  border-radius:16px;display:block;
-  filter:brightness(1.02) contrast(0.97) saturate(0.95);
-}
-.photo-glow-ring{
-  position:absolute;inset:-3px;border-radius:27px;
-  background:conic-gradient(from 0deg,rgba(160,200,240,0.4),rgba(200,220,255,0.8),rgba(140,180,230,0.3),rgba(180,210,255,0.7),rgba(160,200,240,0.4));
-  z-index:-1;
-  animation:rotateRing 6s linear infinite;
-}
-@keyframes rotateRing{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-.photo-caption{
-  text-align:center;
-  font-family:'Cormorant Garamond',serif;
-  font-size:0.85rem;font-style:italic;
-  color:rgba(190,215,240,0.6);
-  letter-spacing:0.12em;
-  opacity:0;
-}
-
-/* LETTER SECTION */
-#letter-section{padding:80px 20px;}
-.letter-container{max-width:680px;width:100%;opacity:0;}
-.letter-card{
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(210,225,245,0.15);
-  border-radius:32px;
-  padding:clamp(28px,5vw,52px);
-  position:relative;
-  backdrop-filter:blur(20px);
-  overflow:hidden;
-}
-.letter-card::before{
-  content:'';position:absolute;
-  top:-60%;left:-20%;width:80%;height:120%;
-  background:radial-gradient(ellipse,rgba(140,190,240,0.05) 0%,transparent 70%);
-  pointer-events:none;
-  animation:driftLight 8s ease-in-out infinite alternate;
-}
-@keyframes driftLight{0%{transform:translate(0,0);}100%{transform:translate(30px,20px);}}
-.letter-deco{
-  text-align:center;margin-bottom:28px;
-  display:flex;align-items:center;gap:16px;
-}
-.letter-deco-line{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(190,215,240,0.2),transparent);}
-.letter-deco-icon{color:rgba(200,220,240,0.5);font-size:1.1rem;}
-.letter-para{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(1.05rem,3vw,1.22rem);
-  font-style:italic;font-weight:300;
-  color:rgba(225,238,255,0.9);
-  line-height:1.95;
-  margin-bottom:28px;
-  text-indent:2em;
-}
-.letter-para:last-of-type{margin-bottom:0;}
-.word-reveal{display:inline;opacity:0;transition:opacity 0.5s ease;}
-.word-reveal.show{opacity:1;}
-.letter-sign{
-  margin-top:32px;text-align:right;
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.1rem;font-style:italic;font-weight:300;
-  color:rgba(195,220,245,0.75);
-  border-top:1px solid rgba(190,215,240,0.1);
-  padding-top:20px;
-  opacity:0;
-}
-.letter-date{
-  font-size:0.65rem;letter-spacing:0.2em;
-  color:rgba(160,195,225,0.45);
-  text-align:right;margin-top:6px;
-  opacity:0;
-}
-
-/* MEMORIES */
-#memories-section{padding:80px 20px;}
-.memories-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:20px;max-width:900px;width:100%;
-}
-.memory-card{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(210,225,245,0.12);
-  border-radius:20px;padding:28px 24px;
-  position:relative;overflow:hidden;cursor:none;
-  opacity:0;transform:translateY(30px) scale(0.97);
-  will-change:transform;
-}
-.memory-card::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,transparent,rgba(160,200,240,0.4),transparent);
-  transform:scaleX(0);transition:transform 0.4s;
-}
-.memory-card:hover::after{transform:scaleX(1);}
-.memory-emoji{font-size:1.8rem;margin-bottom:14px;display:block;}
-.memory-title{
-  font-family:'Playfair Display',serif;
-  font-size:1.05rem;font-weight:400;
-  color:rgba(220,235,255,0.9);margin-bottom:10px;
-}
-.memory-text{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1rem;font-style:italic;font-weight:300;
-  color:rgba(190,215,240,0.7);line-height:1.75;
-}
-
-/* CONSTELLATION */
-#constellation-section{padding:80px 20px;perspective:600px;}
-.constellation-wrap{max-width:700px;width:100%;text-align:center;opacity:0;}
-.constellation-title{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(1.6rem,5vw,2.6rem);font-weight:400;
-  color:rgba(220,238,255,0.9);margin-bottom:12px;
-  text-shadow:0 0 40px rgba(150,200,255,0.2);
-}
-.constellation-sub{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.1rem;font-style:italic;
-  color:rgba(190,215,240,0.6);margin-bottom:40px;
-}
-#constellation-canvas{
-  width:100%;height:300px;border-radius:20px;
-  border:1px solid rgba(180,210,240,0.1);
-  background:rgba(0,0,0,0.2);cursor:crosshair;
-}
-
-/* POEM */
-#poem-section{padding:80px 20px;}
-.poem-wrap{max-width:520px;width:100%;text-align:center;opacity:0;}
-.poem-label{
-  font-size:0.58rem;letter-spacing:0.45em;text-transform:uppercase;
-  color:rgba(190,215,240,0.4);margin-bottom:32px;
-}
-.poem-line{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(1.1rem,3.5vw,1.35rem);
-  font-style:italic;font-weight:300;
-  color:rgba(220,238,255,0.0);
-  line-height:2.1;display:block;
-  transition:color 0.6s,text-shadow 0.6s;
-}
-.poem-line.lit{
-  color:rgba(220,238,255,0.9);
-  text-shadow:0 0 20px rgba(150,200,255,0.25);
-}
-.poem-gap{height:24px;}
-
-/* FINALE */
-#finale-section{padding:0;overflow:hidden;position:relative;}
-#finale-canvas{width:100%;height:100vh;display:block;}
-.finale-overlay{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;pointer-events:none;opacity:0;
-}
-.finale-title{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(2rem,8vw,4.5rem);font-weight:400;
-  color:rgba(220,240,255,0.95);
-  text-shadow:0 0 60px rgba(150,200,255,0.4),0 2px 40px rgba(0,0,80,0.4);
-  margin-bottom:16px;
-}
-.finale-sub{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(0.95rem,2.5vw,1.2rem);font-style:italic;
-  color:rgba(200,225,250,0.65);letter-spacing:0.06em;
-}
-
-/* MISC */
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-.tap-ripple{
-  position:fixed;pointer-events:none;z-index:200;border-radius:50%;
-  transform:translate(-50%,-50%);
-}
-.float-particle{
-  position:fixed;pointer-events:none;z-index:3;border-radius:50%;
-}
-.section-label{
-  font-size:0.58rem;letter-spacing:0.45em;text-transform:uppercase;
-  color:rgba(180,210,240,0.38);margin-bottom:36px;text-align:center;
-}
-
-/* GSAP MORPHING SVG DECORATION */
-.hero-svg-deco{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  pointer-events:none;z-index:-1;opacity:0.06;
-  width:600px;height:600px;
-}
-
-/* PARALLAX DEPTH LAYERS */
-.parallax-slow{will-change:transform;}
-.parallax-fast{will-change:transform;}
-
-/* STAGGER LINES in poem */
-.gsap-split-char{display:inline-block;}
-
-/* FLOATING HEARTS */
-.float-heart{
-  position:fixed;pointer-events:none;z-index:5;
-  font-size:1.2rem;opacity:0;
-  animation:none;
-}
-
-/* SCROLL PROGRESS BAR */
-#scroll-progress{
-  position:fixed;top:0;left:0;width:0%;height:2px;
-  background:linear-gradient(90deg,rgba(140,180,240,0),rgba(200,225,255,0.7),rgba(140,180,240,0));
-  z-index:200;
-  transition:none;
-}
-
-/* SECTION HEADINGS */
-.section-heading{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(1.6rem,5vw,2.8rem);
-  font-weight:400;
-  color:rgba(220,238,255,0.9);
-  text-align:center;
-  margin-bottom:40px;
-  opacity:0;
-}
-
-/* MEMORY CARD SHIMMER ON HOVER */
-.memory-card-shimmer{
-  position:absolute;inset:0;
-  background:linear-gradient(105deg,transparent 40%,rgba(200,225,255,0.07) 50%,transparent 60%);
-  transform:translateX(-100%);
-  pointer-events:none;border-radius:20px;
-}
-
-/* LOTTIE-STYLE SVG STAR burst */
-.star-burst{
-  position:fixed;pointer-events:none;z-index:6;
-  font-size:0.9rem;opacity:0;
-}
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noor Arissya — Resume</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="scroll-progress"></div>
-<div id="cursor"></div>
-<div id="cursor-trail"></div>
-<canvas id="bg-canvas"></canvas>
-<canvas id="particle-canvas"></canvas>
-<div class="ripple-layer" id="ripple-layer"></div>
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-content">
+    <div class="loader-line"></div>
+    <span class="loader-label">Loading</span>
+  </div>
+</div>
 
-<!-- NAV DOTS -->
-<nav id="progress-nav" aria-label="Page sections">
-  <div class="nav-dot active" data-section="0" title="Intro"></div>
-  <div class="nav-dot" data-section="1" title="Photo"></div>
-  <div class="nav-dot" data-section="2" title="Letter"></div>
-  <div class="nav-dot" data-section="3" title="Memories"></div>
-  <div class="nav-dot" data-section="4" title="Constellation"></div>
-  <div class="nav-dot" data-section="5" title="Poem"></div>
-  <div class="nav-dot" data-section="6" title="Finale"></div>
+<!-- CURSOR -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#hero">N·A</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="menu">
+      <span></span><span></span>
+    </button>
+  </div>
 </nav>
 
-<!-- SECTION 1: HERO -->
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <ul>
+    <li><a href="#about" class="mobile-link">About</a></li>
+    <li><a href="#experience" class="mobile-link">Experience</a></li>
+    <li><a href="#skills" class="mobile-link">Skills</a></li>
+    <li><a href="#education" class="mobile-link">Education</a></li>
+    <li><a href="#contact" class="mobile-link">Contact</a></li>
+  </ul>
+</div>
+
+<!-- HERO -->
 <section id="hero">
-  <svg class="hero-svg-deco" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
-    <circle id="morphShape" cx="300" cy="300" r="220" fill="none" stroke="rgba(180,210,255,1)" stroke-width="0.8"/>
-    <circle cx="300" cy="300" r="180" fill="none" stroke="rgba(160,200,240,0.5)" stroke-width="0.4"/>
-    <circle cx="300" cy="300" r="140" fill="none" stroke="rgba(140,190,230,0.3)" stroke-width="0.3"/>
-  </svg>
+  <div class="hero-bg-text" aria-hidden="true">RESUME</div>
 
-  <div class="hero-inner" id="hero-inner">
-    <p class="hero-eyebrow" id="hero-eyebrow">a message across the stars</p>
-    <h1 class="hero-title" id="hero-title">
-      <span class="hero-title-word">dear </span><span class="hero-title-word" style="
-        background:linear-gradient(135deg,#c8d8f0,#e8f2ff,#a0c0e8,#d0e4f8);
-        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-        background-size:200% 200%;animation:shimmerText 4s linear infinite;
-      ">noorarissya</span>
-    </h1>
-    <p class="hero-sub" id="hero-sub">this was made for you, and only you</p>
-    <button class="mag-btn" id="hero-btn" onclick="document.getElementById('photo-section').scrollIntoView({behavior:'smooth'})">
-      begin the journey ✦
-    </button>
-    <div class="scroll-hint" id="scroll-hint">
-      <span>scroll to begin</span>
-      <div class="scroll-arrow" id="scroll-arrow"></div>
-    </div>
-  </div>
-</section>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag" data-anim="fade-up">
+        <span class="tag-dot"></span>
+        Fresh Graduate · 2025
+      </div>
 
-<!-- SECTION 2: PHOTO -->
-<section id="photo-section">
-  <div class="photo-stage" id="photo-stage">
-    <p class="section-label" id="photo-label">the face i remember</p>
-    <div class="photo-3d-wrap" id="photo-3d">
-      <div class="photo-glow-ring"></div>
-      <div class="photo-card">
-        <img src="eri.jpg" alt="Noorarissya" onerror="this.style.display='none';this.parentNode.style.minHeight='320px';this.parentNode.innerHTML+='<div style=\'display:flex;align-items:center;justify-content:center;height:320px;color:rgba(200,225,250,0.3);font-family:Cormorant Garamond,serif;font-style:italic;font-size:1.1rem;\'>your photo here 🌙</div>'"/>
+      <h1 class="hero-name" data-anim="split">
+        <span class="name-line">Noor</span>
+        <span class="name-line">Arissya</span>
+        <span class="name-line italic">Ahmad Jais</span>
+      </h1>
+
+      <p class="hero-sub" data-anim="fade-up" data-delay="0.6">
+        Diploma in Law · Universiti Islam Melaka
+      </p>
+
+      <p class="hero-desc" data-anim="fade-up" data-delay="0.8">
+        Motivated fresh graduate with strong communication and interpersonal skills, eager to contribute positively and grow in a professional working environment.
+      </p>
+
+      <div class="hero-actions" data-anim="fade-up" data-delay="1.0">
+        <a href="#contact" class="btn btn-dark">
+          <span>Get In Touch</span>
+          <svg width="14" height="14" viewBox="0 0 14 14"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#experience" class="btn btn-outline">View Work</a>
       </div>
     </div>
-    <p class="photo-caption" id="photo-caption">noorarissya · 2026</p>
-  </div>
-</section>
 
-<!-- SECTION 3: LETTER -->
-<section id="letter-section">
-  <div class="letter-container" id="letter-container">
-    <p class="section-label">from the heart</p>
-    <div class="letter-card">
-      <div class="letter-deco">
-        <div class="letter-deco-line"></div>
-        <span class="letter-deco-icon">🦆</span>
-        <div class="letter-deco-line"></div>
+    <div class="hero-right" data-anim="photo">
+      <div class="photo-wrap" id="photoWrap">
+        <img src="eri.jpg" alt="Noor Arissya" class="photo-img" id="heroPhoto"
+          onerror="this.style.cssText='background:#e8e6e2;width:100%;aspect-ratio:3/4;display:block;'">
+        <div class="photo-overlay"></div>
+        <div class="photo-corner tl"></div>
+        <div class="photo-corner tr"></div>
+        <div class="photo-corner bl"></div>
+        <div class="photo-corner br"></div>
+        <div class="photo-badge">
+          <span class="badge-num">3.46</span>
+          <span class="badge-lbl">CGPA</span>
+        </div>
       </div>
-      <p class="letter-para" id="lp1"></p>
-      <p class="letter-para" id="lp2"></p>
-      <p class="letter-para" id="lp3"></p>
-      <div class="letter-sign" id="letter-sign">— sincerely, e 🤍</div>
-      <div class="letter-date" id="letter-date">27 · 05 · 2026</div>
+      <div class="hero-float-tag" data-anim="fade-up" data-delay="1.0">
+        <span class="float-icon">⚖️</span>
+        <span>Law Graduate</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-track"><div class="scroll-progress"></div></div>
+    <span>Scroll to explore</span>
+  </div>
+
+  <!-- Decorative grid -->
+  <div class="hero-grid" aria-hidden="true"></div>
+</section>
+
+<!-- ABOUT STRIP -->
+<section id="about" class="about-strip">
+  <div class="container">
+    <div class="strip-inner">
+      <div class="strip-stat" data-anim="fade-up">
+        <span class="strip-num">3.46</span>
+        <span class="strip-lbl">CGPA</span>
+      </div>
+      <div class="strip-divider"></div>
+      <div class="strip-stat" data-anim="fade-up" data-delay="0.1">
+        <span class="strip-num">2+</span>
+        <span class="strip-lbl">Years Experience</span>
+      </div>
+      <div class="strip-divider"></div>
+      <div class="strip-stat" data-anim="fade-up" data-delay="0.2">
+        <span class="strip-num">3</span>
+        <span class="strip-lbl">Roles Held</span>
+      </div>
+      <div class="strip-divider"></div>
+      <div class="strip-stat" data-anim="fade-up" data-delay="0.3">
+        <span class="strip-num">2</span>
+        <span class="strip-lbl">Languages</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- SECTION 4: MEMORIES -->
-<section id="memories-section">
-  <p class="section-label section-heading" id="memories-heading">little things i hold onto</p>
-  <div class="memories-grid" id="memories-grid">
-    <div class="memory-card">
-      <div class="memory-card-shimmer"></div>
-      <span class="memory-emoji">🌙</span>
-      <div class="memory-title">quiet nights</div>
-      <p class="memory-text">the kind of silence that feels safe because you're nearby — not empty, but full of something unspoken and warm</p>
+<!-- EXPERIENCE -->
+<section id="experience" class="section">
+  <div class="container">
+    <div class="section-head" data-anim="fade-up">
+      <span class="section-index">02</span>
+      <h2 class="section-title">Work<br><em>Experience</em></h2>
     </div>
-    <div class="memory-card">
-      <div class="memory-card-shimmer"></div>
-      <span class="memory-emoji">🌊</span>
-      <div class="memory-title">the way you listen</div>
-      <p class="memory-text">you don't just hear words. you hear the weight behind them, the pause before them, the thing i almost didn't say</p>
-    </div>
-    <div class="memory-card">
-      <div class="memory-card-shimmer"></div>
-      <span class="memory-emoji">🌸</span>
-      <div class="memory-title">small moments</div>
-      <p class="memory-text">the random laugh. the way you get distracted. the look in your eyes when something finally makes sense</p>
-    </div>
-    <div class="memory-card">
-      <div class="memory-card-shimmer"></div>
-      <span class="memory-emoji">✨</span>
-      <div class="memory-title">you exist</div>
-      <p class="memory-text">and somehow that fact alone rearranges the whole texture of a day. what a strange, beautiful thing</p>
-    </div>
-    <div class="memory-card">
-      <div class="memory-card-shimmer"></div>
-      <span class="memory-emoji">🕊️</span>
-      <div class="memory-title">your kindness</div>
-      <p class="memory-text">it's not performative or calculated — it just flows out of you like it can't help itself. i notice it every time</p>
-    </div>
-    <div class="memory-card">
-      <div class="memory-card-shimmer"></div>
-      <span class="memory-emoji">🌟</span>
-      <div class="memory-title">the first impression</div>
-      <p class="memory-text">something shifted the moment i really saw you — not your face, but the whole presence of you. i haven't recovered since</p>
+
+    <div class="exp-list">
+
+      <div class="exp-item" data-anim="exp">
+        <div class="exp-meta">
+          <span class="exp-year">2024 — 2025</span>
+          <span class="exp-type">Internship</span>
+        </div>
+        <div class="exp-body">
+          <div class="exp-header">
+            <h3 class="exp-company">Goh & Lau</h3>
+            <p class="exp-role">Advocates & Solicitors</p>
+          </div>
+          <ul class="exp-points">
+            <li>Prepared and organized legal documents, client files, and administrative paperwork</li>
+            <li>Managed filing, data entry, and documentation for accurate record keeping</li>
+            <li>Assisted lawyers and staff with daily office operations</li>
+            <li>Handled client inquiries professionally via phone and front desk</li>
+            <li>Developed communication, organizational, and multitasking skills</li>
+          </ul>
+        </div>
+        <div class="exp-line"></div>
+      </div>
+
+      <div class="exp-item" data-anim="exp" data-delay="0.15">
+        <div class="exp-meta">
+          <span class="exp-year">2023 — 2024</span>
+          <span class="exp-type">Part-Time</span>
+        </div>
+        <div class="exp-body">
+          <div class="exp-header">
+            <h3 class="exp-company">Fodegraf Worldwide</h3>
+            <p class="exp-role">Sales Person</p>
+          </div>
+          <ul class="exp-points">
+            <li>Assisted customers with photography packages and services professionally</li>
+            <li>Promoted company products and achieved daily sales targets</li>
+            <li>Developed interpersonal, communication, and problem-solving skills</li>
+            <li>Engaged customers from diverse backgrounds with professionalism</li>
+          </ul>
+        </div>
+        <div class="exp-line"></div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- SECTION 5: CONSTELLATION -->
-<section id="constellation-section">
-  <div class="constellation-wrap" id="constellation-wrap">
-    <h2 class="constellation-title" id="constellation-title">our constellation</h2>
-    <p class="constellation-sub">tap the sky to add your stars ✦</p>
-    <canvas id="constellation-canvas"></canvas>
+<!-- SKILLS -->
+<section id="skills" class="section section-light">
+  <div class="container">
+    <div class="section-head" data-anim="fade-up">
+      <span class="section-index">03</span>
+      <h2 class="section-title">Core<br><em>Competencies</em></h2>
+    </div>
+
+    <div class="skills-wrap">
+      <div class="skills-grid">
+        <div class="skill-card" data-anim="skill" data-delay="0">
+          <div class="skill-icon">🧠</div>
+          <div class="skill-name">Critical Thinking</div>
+          <div class="skill-bar"><div class="skill-fill" data-w="90"></div></div>
+        </div>
+        <div class="skill-card" data-anim="skill" data-delay="0.05">
+          <div class="skill-icon">🤝</div>
+          <div class="skill-name">Teamwork</div>
+          <div class="skill-bar"><div class="skill-fill" data-w="95"></div></div>
+        </div>
+        <div class="skill-card" data-anim="skill" data-delay="0.10">
+          <div class="skill-icon">💬</div>
+          <div class="skill-name">Communication</div>
+          <div class="skill-bar"><div class="skill-fill" data-w="88"></div></div>
+        </div>
+        <div class="skill-card" data-anim="skill" data-delay="0.15">
+          <div class="skill-icon">⚡</div>
+          <div class="skill-name">Problem Solving</div>
+          <div class="skill-bar"><div class="skill-fill" data-w="85"></div></div>
+        </div>
+        <div class="skill-card" data-anim="skill" data-delay="0.20">
+          <div class="skill-icon">⏱️</div>
+          <div class="skill-name">Time Management</div>
+          <div class="skill-bar"><div class="skill-fill" data-w="92"></div></div>
+        </div>
+        <div class="skill-card" data-anim="skill" data-delay="0.25">
+          <div class="skill-icon">💻</div>
+          <div class="skill-name">Microsoft Office</div>
+          <div class="skill-bar"><div class="skill-fill" data-w="80"></div></div>
+        </div>
+      </div>
+
+      <div class="lang-wrap" data-anim="fade-up">
+        <h3 class="lang-title">Languages</h3>
+        <div class="lang-item">
+          <div class="lang-row">
+            <span>Bahasa Melayu</span>
+            <span class="lang-level">Native</span>
+          </div>
+          <div class="lang-track"><div class="lang-fill" data-w="100"></div></div>
+        </div>
+        <div class="lang-item">
+          <div class="lang-row">
+            <span>English</span>
+            <span class="lang-level">Good</span>
+          </div>
+          <div class="lang-track"><div class="lang-fill" data-w="75"></div></div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- SECTION 6: POEM -->
-<section id="poem-section">
-  <div class="poem-wrap" id="poem-wrap">
-    <p class="poem-label">a small poem, just for you</p>
-    <span class="poem-line" id="pl1">you are not a wish i made in passing —</span>
-    <span class="poem-line" id="pl2">you are the kind that keeps</span>
-    <span class="poem-line" id="pl3">coming true in quiet ways,</span>
-    <div class="poem-gap"></div>
-    <span class="poem-line" id="pl4">in the middle of ordinary days</span>
-    <span class="poem-line" id="pl5">when i least expect to feel</span>
-    <span class="poem-line" id="pl6">something this soft.</span>
-    <div class="poem-gap"></div>
-    <span class="poem-line" id="pl7">thank you for existing</span>
-    <span class="poem-line" id="pl8">in the same world as me.</span>
+<!-- EDUCATION -->
+<section id="education" class="section">
+  <div class="container">
+    <div class="section-head" data-anim="fade-up">
+      <span class="section-index">04</span>
+      <h2 class="section-title">Academic<br><em>Background</em></h2>
+    </div>
+
+    <div class="edu-grid">
+      <div class="edu-card" data-anim="fade-up">
+        <span class="edu-year">2022 — 2025</span>
+        <h3 class="edu-school">Universiti Islam Melaka</h3>
+        <p class="edu-field">Diploma in Law</p>
+        <div class="edu-cgpa">CGPA 3.46</div>
+      </div>
+      <div class="edu-card" data-anim="fade-up" data-delay="0.15">
+        <span class="edu-year">2017 — 2021</span>
+        <h3 class="edu-school">SMK Bukit Rambai</h3>
+        <p class="edu-field">Sijil Pelajaran Malaysia</p>
+      </div>
+    </div>
+
+    <div class="achieve-wrap" data-anim="fade-up">
+      <h3 class="achieve-title">Achievements</h3>
+      <div class="achieve-grid">
+        <div class="achieve-item">
+          <div class="achieve-icon">🏅</div>
+          <p>Participated in a Malacca state-level marching parade at the Fire Station</p>
+        </div>
+        <div class="achieve-item">
+          <div class="achieve-icon">📋</div>
+          <p>Appointed as committee member for faculty programs and student activities, contributing to event management and team coordination</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- SECTION 7: FINALE -->
-<section id="finale-section">
-  <canvas id="finale-canvas"></canvas>
-  <div class="finale-overlay" id="finale-overlay">
-    <div class="finale-title" id="finale-title">always, e 🤍</div>
-    <div class="finale-sub" id="finale-sub">noorarissya · this moment was made for you</div>
+<!-- CONTACT -->
+<section id="contact" class="section section-dark">
+  <div class="container">
+    <div class="section-head" data-anim="fade-up">
+      <span class="section-index" style="color:#aaa">05</span>
+      <h2 class="section-title" style="color:#fff">Let's<br><em style="color:#fff;font-style:italic;">Connect</em></h2>
+    </div>
+
+    <div class="contact-wrap">
+      <div class="contact-info">
+        <a href="tel:+60176041879" class="contact-card" data-anim="fade-up">
+          <div class="contact-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.09-1.09a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div>
+            <span class="contact-lbl">Phone</span>
+            <span class="contact-val">017-6041879</span>
+          </div>
+          <svg class="contact-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+
+        <a href="mailto:arissyajais81@gmail.com" class="contact-card" data-anim="fade-up" data-delay="0.1">
+          <div class="contact-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          </div>
+          <div>
+            <span class="contact-lbl">Email</span>
+            <span class="contact-val">arissyajais81@gmail.com</span>
+          </div>
+          <svg class="contact-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+
+        <a href="https://maps.google.com/?q=Tanjung+Minyak,Melaka" target="_blank" class="contact-card" data-anim="fade-up" data-delay="0.2">
+          <div class="contact-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          </div>
+          <div>
+            <span class="contact-lbl">Location</span>
+            <span class="contact-val">Melaka, Malaysia</span>
+          </div>
+          <svg class="contact-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="contact-quote-wrap" data-anim="fade-up" data-delay="0.2">
+        <blockquote class="contact-quote">
+          "Willing to learn, adapt, and grow — ready to make a real difference."
+        </blockquote>
+        <div class="contact-actions">
+          <a href="mailto:arissyajais81@gmail.com" class="btn btn-white">
+            <span>Send Email</span>
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="tel:+60176041879" class="btn btn-ghost">Call Now</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<script>
-// ─── GSAP SETUP ───────────────────────────────────────────────────────────────
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin, CustomEase, MotionPathPlugin);
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-name">Noor Arissya Binti Ahmad Jais</span>
+      <span class="footer-copy">Fresh Graduate 2025 · Melaka, Malaysia</span>
+    </div>
+  </div>
+</footer>
 
-// Try SplitText (premium) — fallback handled gracefully
-var hasSplitText = typeof SplitText !== 'undefined';
-
-CustomEase.create("silk", "M0,0 C0.06,0.9 0.06,1 1,1");
-CustomEase.create("snap", "M0,0 C0.5,0 0.5,1 1,1");
-
-// ─── SCROLL PROGRESS ─────────────────────────────────────────────────────────
-gsap.to("#scroll-progress", {
-  width:"100%",
-  ease:"none",
-  scrollTrigger:{trigger:"body",start:"top top",end:"bottom bottom",scrub:true}
-});
-
-// ─── CURSOR (GSAP-powered) ────────────────────────────────────────────────────
-var cur = document.getElementById('cursor');
-var trail = document.getElementById('cursor-trail');
-var mouse = {x:0, y:0};
-
-window.addEventListener('mousemove', function(e){
-  mouse.x = e.clientX; mouse.y = e.clientY;
-  gsap.to(cur, {x: e.clientX, y: e.clientY, duration: 0.08, ease:"none"});
-  gsap.to(trail, {x: e.clientX, y: e.clientY, duration: 0.22, ease:"power2.out"});
-});
-
-// cursor hover grow effect
-document.querySelectorAll('button, .nav-dot, .memory-card, #constellation-canvas').forEach(function(el){
-  el.addEventListener('mouseenter', function(){
-    gsap.to(cur, {scale:2.5, duration:0.3, ease:"silk"});
-    gsap.to(trail, {scale:0.5, opacity:0.3, duration:0.3, ease:"silk"});
-  });
-  el.addEventListener('mouseleave', function(){
-    gsap.to(cur, {scale:1, duration:0.3, ease:"silk"});
-    gsap.to(trail, {scale:1, opacity:1, duration:0.3, ease:"silk"});
-  });
-});
-
-// ─── HERO ENTRANCE ────────────────────────────────────────────────────────────
-var heroTl = gsap.timeline({delay:0.2});
-
-// Rotating SVG rings
-gsap.to(".hero-svg-deco circle:nth-child(1)", {rotation:360, transformOrigin:"center center", duration:30, repeat:-1, ease:"none"});
-gsap.to(".hero-svg-deco circle:nth-child(2)", {rotation:-360, transformOrigin:"center center", duration:22, repeat:-1, ease:"none"});
-gsap.to(".hero-svg-deco circle:nth-child(3)", {rotation:360, transformOrigin:"center center", duration:16, repeat:-1, ease:"none"});
-
-// Pulsing SVG glow
-gsap.to(".hero-svg-deco", {opacity:0.12, duration:3, repeat:-1, yoyo:true, ease:"sine.inOut"});
-
-heroTl
-  .to(".hero-svg-deco", {opacity:0.08, duration:1.5, ease:"power2.out"})
-  .to("#hero-eyebrow", {opacity:1, y:0, duration:1, ease:"silk"}, "-=1")
-  .to("#hero-title", {opacity:1, duration:0.1}, "-=0.5")
-  .from("#hero-title .hero-title-word", {
-    y:60, opacity:0, stagger:0.15, duration:1.2, ease:"silk"
-  }, "<")
-  .to("#hero-sub", {opacity:1, y:0, duration:1, ease:"silk"}, "-=0.6")
-  .to("#hero-btn", {opacity:1, y:0, duration:0.8, ease:"silk"}, "-=0.4")
-  .to("#scroll-hint", {opacity:1, duration:0.8, ease:"silk"}, "-=0.2");
-
-// Hero floating animation
-gsap.to("#hero-inner", {
-  y:-12, rotateX:2, duration:6, repeat:-1, yoyo:true, ease:"sine.inOut",
-  transformOrigin:"center center"
-});
-
-// Scroll arrow pulse
-gsap.to("#scroll-arrow", {
-  scaleY:1.2, opacity:0.9, duration:1.5, repeat:-1, yoyo:true, ease:"sine.inOut"
-});
-
-// Magnetic button
-var btn = document.getElementById('hero-btn');
-btn.addEventListener('mousemove', function(e){
-  var r = btn.getBoundingClientRect();
-  var cx = r.left + r.width/2, cy = r.top + r.height/2;
-  gsap.to(btn, {x:(e.clientX-cx)*0.35, y:(e.clientY-cy)*0.35, duration:0.5, ease:"power2.out"});
-});
-btn.addEventListener('mouseleave', function(){
-  gsap.to(btn, {x:0, y:0, duration:0.6, ease:"elastic.out(1,0.4)"});
-});
-
-// ─── PHOTO SECTION ────────────────────────────────────────────────────────────
-ScrollTrigger.create({
-  trigger:"#photo-section",
-  start:"top 70%",
-  onEnter: function(){
-    gsap.to("#photo-stage", {opacity:1, duration:0.5});
-    gsap.from("#photo-label", {y:30, opacity:0, duration:1, ease:"silk"});
-    gsap.from("#photo-3d", {scale:0.8, opacity:0, duration:1.4, ease:"elastic.out(1,0.5)", delay:0.2});
-    gsap.from("#photo-caption", {y:20, opacity:0, duration:1, ease:"silk", delay:0.8});
-    gsap.to("#photo-caption", {opacity:1, duration:0.5, delay:0.8});
-  }
-});
-
-// 3D Tilt photo
-var p3d = document.getElementById('photo-3d');
-document.addEventListener('mousemove', function(e){
-  if(!p3d) return;
-  var r = p3d.getBoundingClientRect();
-  var cx = r.left+r.width/2, cy = r.top+r.height/2;
-  var dx=(e.clientX-cx)/r.width, dy=(e.clientY-cy)/r.height;
-  gsap.to(p3d, {
-    rotationY: dx*22, rotationX: -dy*16,
-    duration:0.6, ease:"power2.out",
-    transformPerspective:600
-  });
-});
-
-// ─── LETTER SECTION ───────────────────────────────────────────────────────────
-var letterRevealed = false;
-var letterLines=[
-  {id:'lp1',text:'you are the breeze i never noticed i was breathing — quiet, constant, and somehow exactly what i needed. the kind of presence you don\'t announce, but simply arrive, and suddenly everything feels a little more possible.'},
-  {id:'lp2',text:'there is something about the way you carry yourself — unhurried, honest, unbothered by the noise — that makes me want to be a quieter, softer version of myself. you don\'t ask for that. you just inspire it by existing.'},
-  {id:'lp3',text:'thank you for staying. thank you for existing. thank you for being the kind of presence the heart remembers before the mind does. you are not a small thing in my world, noorarissya. you are one of its best parts.'}
-];
-
-ScrollTrigger.create({
-  trigger:"#letter-section",
-  start:"top 60%",
-  onEnter: function(){
-    gsap.to("#letter-container", {opacity:1, duration:0.3});
-    gsap.from("#letter-container", {y:40, duration:1.2, ease:"silk"});
-    if(!letterRevealed){ letterRevealed=true; startLetterReveal(); }
-    gsap.to("#letter-sign", {opacity:1, duration:1, delay:8, ease:"silk"});
-    gsap.to("#letter-date", {opacity:1, duration:1, delay:8.4, ease:"silk"});
-  }
-});
-
-function startLetterReveal(){
-  var delay=300;
-  letterLines.forEach(function(line){
-    var el=document.getElementById(line.id);el.innerHTML='';
-    var words=line.text.split(' ');
-    words.forEach(function(w,i){
-      var s=document.createElement('span');s.className='word-reveal';s.textContent=w;
-      el.appendChild(s);
-      if(i<words.length-1)el.appendChild(document.createTextNode(' '));
-      gsap.to(s, {opacity:1, duration:0.4, delay:(delay+i*45)/1000, ease:"silk"});
-    });
-    delay+=words.length*45+500;
-  });
-}
-
-// ─── MEMORY CARDS ─────────────────────────────────────────────────────────────
-gsap.from(".memories-grid .memory-card", {
-  y:50, opacity:0, scale:0.94,
-  stagger:{amount:0.7, from:"start"},
-  duration:0.9, ease:"silk",
-  scrollTrigger:{trigger:"#memories-section", start:"top 65%"}
-});
-
-// Memory card hover — shimmer sweep
-document.querySelectorAll('.memory-card').forEach(function(card){
-  var shimmer = card.querySelector('.memory-card-shimmer');
-  card.addEventListener('mouseenter', function(){
-    gsap.fromTo(shimmer, {x:'-100%'}, {x:'200%', duration:0.7, ease:"power2.inOut"});
-    gsap.to(card, {
-      y:-6, scale:1.02,
-      boxShadow:"0 16px 48px rgba(140,190,240,0.18), 0 0 0 1px rgba(200,225,250,0.2)",
-      duration:0.4, ease:"power2.out"
-    });
-  });
-  card.addEventListener('mouseleave', function(){
-    gsap.to(card, {y:0, scale:1, boxShadow:"none", duration:0.5, ease:"elastic.out(1,0.5)"});
-  });
-});
-
-// ─── CONSTELLATION SECTION ────────────────────────────────────────────────────
-ScrollTrigger.create({
-  trigger:"#constellation-section",
-  start:"top 65%",
-  onEnter:function(){
-    gsap.to("#constellation-wrap", {opacity:1, duration:0.5});
-    gsap.from("#constellation-title", {y:30, opacity:0, duration:1, ease:"silk"});
-    gsap.from("#constellation-canvas", {scale:0.95, opacity:0, duration:1.2, delay:0.3, ease:"silk"});
-  }
-});
-
-// ─── POEM SECTION ─────────────────────────────────────────────────────────────
-ScrollTrigger.create({
-  trigger:"#poem-section",
-  start:"top 65%",
-  onEnter:function(){
-    gsap.to("#poem-wrap", {opacity:1, duration:0.3});
-    var lines = document.querySelectorAll('.poem-line');
-    lines.forEach(function(l,i){
-      gsap.to(l, {
-        color:"rgba(220,238,255,0.9)",
-        textShadow:"0 0 20px rgba(150,200,255,0.25)",
-        duration:0.8,
-        delay: i*0.32 + 0.4,
-        ease:"silk"
-      });
-      // per-line y-rise
-      gsap.from(l, {y:12, duration:0.8, delay: i*0.32+0.4, ease:"silk"});
-    });
-  }
-});
-
-// ─── NAV DOTS ─────────────────────────────────────────────────────────────────
-var sections = document.querySelectorAll('section');
-var dots = document.querySelectorAll('.nav-dot');
-
-sections.forEach(function(sec, idx){
-  ScrollTrigger.create({
-    trigger: sec, start:"top center", end:"bottom center",
-    onToggle: function(self){
-      if(self.isActive){
-        dots.forEach(function(d,i){
-          gsap.to(d, {
-            scale: i===idx?1.5:1,
-            background: i===idx?'rgba(200,230,255,0.9)':'rgba(180,210,240,0.25)',
-            duration:0.3, ease:"silk"
-          });
-          d.classList.toggle('active', i===idx);
-        });
-      }
-    }
-  });
-});
-
-dots.forEach(function(dot){
-  dot.addEventListener('click', function(){
-    var idx = parseInt(dot.dataset.section);
-    gsap.to(window, {duration:1, scrollTo:{y:sections[idx], offsetY:0}, ease:"power3.inOut"});
-  });
-});
-
-// ─── FINALE SECTION ───────────────────────────────────────────────────────────
-ScrollTrigger.create({
-  trigger:"#finale-section",
-  start:"top 60%",
-  onEnter:function(){
-    var tl = gsap.timeline();
-    tl.to("#finale-overlay", {opacity:1, duration:1.5, ease:"silk"})
-      .from("#finale-title", {scale:0.8, opacity:0, duration:1.4, ease:"elastic.out(1,0.5)"}, "-=1")
-      .from("#finale-sub", {y:20, opacity:0, duration:1, ease:"silk"}, "-=0.6");
-    
-    // burst hearts on finale
-    setTimeout(function(){
-      for(var i=0;i<12;i++){
-        spawnHeart();
-      }
-    }, 500);
-  }
-});
-
-// ─── CLICK RIPPLES (GSAP) ─────────────────────────────────────────────────────
-document.addEventListener('click', function(e){
-  var r = document.createElement('div');
-  r.className='tap-ripple';
-  r.style.cssText='left:'+e.clientX+'px;top:'+e.clientY+'px;position:fixed;width:4px;height:4px;border-radius:50%;border:2px solid rgba(180,220,255,0.7);z-index:200;pointer-events:none;';
-  document.body.appendChild(r);
-  gsap.to(r, {
-    width:120, height:120, opacity:0, borderWidth:1,
-    duration:0.9, ease:"power2.out",
-    onComplete:function(){ r.remove(); }
-  });
-  spawnParticlesGSAP(e.clientX, e.clientY);
-});
-
-function spawnParticlesGSAP(x,y){
-  for(var i=0;i<8;i++){
-    var p = document.createElement('div');
-    p.style.cssText='position:fixed;pointer-events:none;z-index:3;border-radius:50%;left:'+x+'px;top:'+y+'px;width:'+(2+Math.random()*4)+'px;height:'+(2+Math.random()*4)+'px;background:rgba('+(160+Math.random()*60|0)+','+(200+Math.random()*40|0)+',255,0.8)';
-    document.body.appendChild(p);
-    var angle = (Math.random()*Math.PI*2);
-    var dist = 30+Math.random()*60;
-    gsap.to(p, {
-      x: Math.cos(angle)*dist, y: Math.sin(angle)*dist - 40,
-      opacity:0, scale:0.2, duration:0.9+Math.random()*0.5,
-      ease:"power2.out",
-      onComplete:function(el){ el.remove(); },
-      onCompleteParams:[p]
-    });
-  }
-}
-
-function spawnHeart(){
-  var h = document.createElement('div');
-  h.className = 'float-heart';
-  h.textContent = ['🤍','✨','🌙','🌸','⭐'][Math.floor(Math.random()*5)];
-  h.style.left = (10+Math.random()*80)+'vw';
-  h.style.top = (60+Math.random()*30)+'vh';
-  document.body.appendChild(h);
-  gsap.fromTo(h,
-    {opacity:0, y:0, scale:0.5},
-    {opacity:0.8, y:-(80+Math.random()*120), scale:1, duration:2+Math.random(),
-     ease:"power2.out", delay:Math.random()*1.5,
-     onComplete:function(){
-       gsap.to(h, {opacity:0, duration:0.5, onComplete:function(){h.remove();}});
-     }
-  });
-}
-
-// ─── PARALLAX (scrub) ─────────────────────────────────────────────────────────
-gsap.to("#hero-inner", {
-  y:-60,
-  ease:"none",
-  scrollTrigger:{trigger:"#hero",start:"top top",end:"bottom top",scrub:true}
-});
-
-// ─── BACKGROUND CANVAS: STARS + AURORA ───────────────────────────────────────
-var bgc=document.getElementById('bg-canvas');
-var bx=bgc.getContext('2d');
-var BW,BH;
-function resizeBg(){BW=bgc.width=innerWidth;BH=bgc.height=innerHeight;}
-resizeBg();addEventListener('resize',resizeBg);
-
-var stars=[];
-for(var i=0;i<200;i++){
-  stars.push({x:Math.random(),y:Math.random(),r:0.3+Math.random()*1.6,a:Math.random()*Math.PI*2,speed:0.008+Math.random()*0.025,baseOpacity:0.3+Math.random()*0.5});
-}
-var shooters=[];
-function maybeShooter(){
-  if(Math.random()<0.004)
-    shooters.push({x:Math.random()*BW,y:Math.random()*BH*0.4,vx:5+Math.random()*10,vy:2+Math.random()*5,life:1});
-}
-var auroraT=0;
-function drawBg(){
-  bx.clearRect(0,0,BW,BH);
-  var g=bx.createLinearGradient(0,0,0,BH);
-  g.addColorStop(0,'#030915');g.addColorStop(0.5,'#06121e');g.addColorStop(1,'#0a1628');
-  bx.fillStyle=g;bx.fillRect(0,0,BW,BH);
-  var cols=[[80,160,200],[100,180,160],[130,110,200]];
-  for(var i=0;i<3;i++){
-    var c=cols[i];
-    var gy=BH*(0.18+i*0.12)+Math.sin(auroraT*0.25+i)*BH*0.06;
-    var ag=bx.createLinearGradient(0,gy-80,0,gy+80);
-    ag.addColorStop(0,'rgba('+c+',0)');
-    ag.addColorStop(0.5,'rgba('+c+',0.12)');
-    ag.addColorStop(1,'rgba('+c+',0)');
-    bx.fillStyle=ag;
-    bx.beginPath();bx.moveTo(0,gy);
-    for(var px2=0;px2<=BW;px2+=6)
-      bx.lineTo(px2,gy+Math.sin(px2*0.007+auroraT*0.35+i*1.4)*28+Math.sin(px2*0.018+auroraT*0.18)*10);
-    bx.lineTo(BW,0);bx.lineTo(0,0);bx.closePath();bx.fill();
-  }
-  for(var i=0;i<stars.length;i++){
-    var s=stars[i];s.a+=s.speed;
-    var op=s.baseOpacity*(0.6+0.4*Math.sin(s.a));
-    bx.fillStyle='rgba(220,235,255,'+op+')';
-    bx.beginPath();bx.arc(s.x*BW,s.y*BH,s.r,0,Math.PI*2);bx.fill();
-  }
-  maybeShooter();
-  for(var i=shooters.length-1;i>=0;i--){
-    var sh=shooters[i];
-    sh.x+=sh.vx;sh.y+=sh.vy;sh.life-=0.028;
-    if(sh.life<=0||sh.x>BW+50){shooters.splice(i,1);continue;}
-    var tg=bx.createLinearGradient(sh.x-sh.vx*8,sh.y-sh.vy*8,sh.x,sh.y);
-    tg.addColorStop(0,'rgba(200,225,255,0)');tg.addColorStop(1,'rgba(220,240,255,'+sh.life*0.9+')');
-    bx.strokeStyle=tg;bx.lineWidth=1.8;
-    bx.beginPath();bx.moveTo(sh.x-sh.vx*8,sh.y-sh.vy*8);bx.lineTo(sh.x,sh.y);bx.stroke();
-  }
-}
-
-// ─── PARTICLE CANVAS: FLOATING ORBS ──────────────────────────────────────────
-var pc2=document.getElementById('particle-canvas');
-var px3=pc2.getContext('2d');
-function resizePc(){pc2.width=innerWidth;pc2.height=innerHeight;}
-resizePc();addEventListener('resize',resizePc);
-var orbs=[];
-for(var i=0;i<22;i++){
-  orbs.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:40+Math.random()*90,vx:(Math.random()-0.5)*0.15,vy:(Math.random()-0.5)*0.12,a:Math.random()*Math.PI*2,speed:0.003+Math.random()*0.006,hue:190+Math.random()*40});
-}
-function drawOrbs(){
-  px3.clearRect(0,0,pc2.width,pc2.height);
-  for(var i=0;i<orbs.length;i++){
-    var o=orbs[i];o.a+=o.speed;o.x+=o.vx;o.y+=o.vy;
-    if(o.x<-100)o.x=pc2.width+100;if(o.x>pc2.width+100)o.x=-100;
-    if(o.y<-100)o.y=pc2.height+100;if(o.y>pc2.height+100)o.y=-100;
-    var op=0.025+0.015*Math.sin(o.a);
-    var grd=px3.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r);
-    grd.addColorStop(0,'hsla('+o.hue+',60%,75%,'+op+')');
-    grd.addColorStop(1,'hsla('+o.hue+',60%,75%,0)');
-    px3.fillStyle=grd;px3.beginPath();px3.arc(o.x,o.y,o.r,0,Math.PI*2);px3.fill();
-  }
-}
-
-// ─── CONSTELLATION CANVAS ─────────────────────────────────────────────────────
-var cc=document.getElementById('constellation-canvas');
-var cx2=cc.getContext('2d');
-var cStars=[];
-for(var i=0;i<30;i++){
-  cStars.push({x:Math.random()*600,y:Math.random()*280,r:1+Math.random()*2,pulse:Math.random()*Math.PI*2,fixed:true});
-}
-function resizeCc(){cc.width=cc.offsetWidth;cc.height=300;}
-function drawConstellation(){
-  if(!cx2)return;
-  cx2.clearRect(0,0,cc.width,cc.height);
-  for(var i=0;i<cStars.length;i++){
-    for(var j=i+1;j<cStars.length;j++){
-      var dx=cStars[i].x-cStars[j].x,dy=cStars[i].y-cStars[j].y;
-      var dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<100){
-        cx2.strokeStyle='rgba(180,210,240,'+(0.15*(1-dist/100))+')';
-        cx2.lineWidth=0.6;cx2.beginPath();cx2.moveTo(cStars[i].x,cStars[i].y);cx2.lineTo(cStars[j].x,cStars[j].y);cx2.stroke();
-      }
-    }
-  }
-  var now=Date.now()*0.001;
-  for(var i=0;i<cStars.length;i++){
-    var s=cStars[i];
-    var op=0.5+0.4*Math.sin(now*1.5+s.pulse);
-    cx2.fillStyle='rgba(220,235,255,'+op+')';
-    cx2.beginPath();cx2.arc(s.x,s.y,s.r,0,Math.PI*2);cx2.fill();
-    var gg=cx2.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*4);
-    gg.addColorStop(0,'rgba(180,215,255,'+(op*0.45)+')');gg.addColorStop(1,'rgba(180,215,255,0)');
-    cx2.fillStyle=gg;cx2.beginPath();cx2.arc(s.x,s.y,s.r*4,0,Math.PI*2);cx2.fill();
-  }
-}
-cc.addEventListener('click',function(e){
-  var rect=cc.getBoundingClientRect();
-  var star = {x:e.clientX-rect.left,y:e.clientY-rect.top,r:1.5+Math.random(),pulse:Math.random()*Math.PI*2,fixed:false};
-  cStars.push(star);
-  if(cStars.length>60)cStars.shift();
-  // GSAP burst on star add
-  var burst = document.createElement('div');
-  burst.className='star-burst';
-  burst.textContent='✦';
-  burst.style.left=(e.clientX-8)+'px';
-  burst.style.top=(e.clientY-8)+'px';
-  document.body.appendChild(burst);
-  gsap.fromTo(burst,{opacity:1,scale:0.5},{opacity:0,scale:2.5,duration:0.7,ease:"power2.out",onComplete:function(){burst.remove();}});
-});
-setTimeout(resizeCc,100);
-
-// ─── FINALE CANVAS ────────────────────────────────────────────────────────────
-var fc=document.getElementById('finale-canvas');
-var fx=fc.getContext('2d');
-var ft=0;
-function resizeFc(){fc.width=innerWidth;fc.height=innerHeight;}
-resizeFc();addEventListener('resize',resizeFc);
-
-function drawFinale(){
-  var W=fc.width,H=fc.height;
-  fx.clearRect(0,0,W,H);
-  var g=fx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#030b18');g.addColorStop(0.45,'#061424');g.addColorStop(1,'#0a1e38');
-  fx.fillStyle=g;fx.fillRect(0,0,W,H);
-  var mx2=W*0.75,my2=H*0.18;
-  var mg=fx.createRadialGradient(mx2,my2,0,mx2,my2,60);
-  mg.addColorStop(0,'rgba(220,238,255,0.95)');mg.addColorStop(0.3,'rgba(200,225,255,0.6)');mg.addColorStop(1,'rgba(160,200,255,0)');
-  fx.fillStyle=mg;fx.beginPath();fx.arc(mx2,my2,60,0,Math.PI*2);fx.fill();
-  fx.fillStyle='rgba(240,248,255,0.9)';fx.beginPath();fx.arc(mx2,my2,18,0,Math.PI*2);fx.fill();
-  var mlg=fx.createLinearGradient(0,H*0.42,0,H);
-  mlg.addColorStop(0,'rgba(220,240,255,0.04)');mlg.addColorStop(0.5,'rgba(200,230,255,0.06)');mlg.addColorStop(1,'rgba(180,220,255,0.03)');
-  fx.fillStyle=mlg;
-  fx.beginPath();fx.moveTo(W*0.5-40,H*0.42);fx.lineTo(W*0.5+40,H*0.42);fx.lineTo(W*0.65,H);fx.lineTo(W*0.35,H);fx.closePath();fx.fill();
-  var wt=[
-    {a:9,f:0.011,s:0.5,y:0.42,c:'rgba(120,180,230,0.22)'},
-    {a:6,f:0.017,s:0.85,y:0.56,c:'rgba(150,200,240,0.16)'},
-    {a:4,f:0.025,s:1.2,y:0.70,c:'rgba(180,215,250,0.10)'},
-    {a:2,f:0.035,s:1.6,y:0.82,c:'rgba(200,225,255,0.07)'},
-  ];
-  for(var i=0;i<wt.length;i++){
-    var w=wt[i];var wy=H*w.y;
-    fx.beginPath();fx.moveTo(0,wy);
-    for(var xp=0;xp<=W;xp+=3)fx.lineTo(xp,wy+Math.sin(xp*w.f+ft*w.s)*w.a);
-    fx.lineTo(W,H);fx.lineTo(0,H);fx.closePath();
-    fx.fillStyle=w.c;fx.fill();
-  }
-  fx.fillStyle='rgba(220,240,255,0.65)';
-  for(var i=0;i<24;i++){
-    var sx=(i*173+ft*22)%W;
-    var sy=H*0.45+Math.sin(sx*0.02+ft)*8+(i%6)*16;
-    var sr=0.5+Math.sin(ft*2.5+i)*0.4;
-    fx.beginPath();fx.arc(sx,sy,Math.max(0.1,sr),0,Math.PI*2);fx.fill();
-  }
-  var fg=fx.createLinearGradient(0,H*0.7,0,H);
-  fg.addColorStop(0,'rgba(8,22,45,0)');fg.addColorStop(1,'rgba(5,15,30,0.8)');
-  fx.fillStyle=fg;fx.fillRect(0,H*0.7,W,H*0.3);
-  var d1x=(ft*22)%(W+120)-40;
-  var d2x=W-((ft*16+300)%(W+120));
-  var waterLine=H*0.47;
-  drawFinDuck(d1x,waterLine+Math.sin(ft*1.8)*4,false,1.2);
-  drawFinDuck(d2x,waterLine+Math.sin(ft*1.8+1.2)*4,true,1.2);
-  var beachY=H*0.76;
-  drawFinDuck(W*0.18,beachY,false,0.75);
-  drawFinDuck(W*0.42,beachY+Math.sin(ft*1.4)*2,true,0.7);
-  drawFinDuck(W*0.81,beachY-2,false,0.8);
-}
-function drawFinDuck(x,y,flip,size){
-  fx.save();fx.translate(x,y);if(flip)fx.scale(-1,1);fx.scale(size,size);
-  fx.fillStyle='#f0ece0';fx.beginPath();fx.ellipse(0,2,17,12,0,0,Math.PI*2);fx.fill();
-  fx.fillStyle='#ddd8c4';fx.beginPath();fx.ellipse(-2,3,11,7,-0.3,0,Math.PI*2);fx.fill();
-  fx.fillStyle='rgba(220,230,245,0.5)';fx.beginPath();fx.ellipse(-1,1,7,4,-0.2,0,Math.PI*2);fx.fill();
-  fx.fillStyle='#f0ece0';fx.beginPath();fx.arc(14,-5,8.5,0,Math.PI*2);fx.fill();
-  fx.fillStyle='#1a2530';fx.beginPath();fx.arc(17,-7,1.7,0,Math.PI*2);fx.fill();
-  fx.fillStyle='rgba(255,255,255,0.55)';fx.beginPath();fx.arc(17.6,-7.6,0.55,0,Math.PI*2);fx.fill();
-  fx.fillStyle='#e8a020';fx.beginPath();fx.moveTo(22,-5);fx.lineTo(30,-4);fx.lineTo(22,-2);fx.closePath();fx.fill();
-  fx.fillStyle='#ddd8c4';fx.beginPath();fx.moveTo(-14,-1);fx.lineTo(-24,-9);fx.lineTo(-12,3);fx.closePath();fx.fill();
-  fx.restore();
-}
-
-// ─── MAIN LOOP ────────────────────────────────────────────────────────────────
-var globalT=0;
-function loop(){
-  drawBg();drawOrbs();drawConstellation();drawFinale();
-  auroraT+=0.016;globalT+=0.016;ft+=0.016;
-  requestAnimationFrame(loop);
-}
-loop();
-</script>
+<!-- GSAP CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
+<script src="main.js"></script>
 </body>
 </html>
